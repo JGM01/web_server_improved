@@ -4,6 +4,8 @@ use std::io::prelude::*;
 use std::net::TcpStream;
 use std::net::TcpListener;
 use std::fs;
+use std::thread;
+use std::time::Duration;
 use threadpool::ThreadPool;
 
 
@@ -26,13 +28,16 @@ fn handle_connection(mut stream: TcpStream) {
     stream.read(&mut buffer).unwrap();
 
     let get = b"GET / HTTP/1.1\r\n";
+    let sleep = b"GET /sleep HTTP/1.1\r\n";
 
-    let (status_line, web_page) = 
-        if buffer.starts_with(get) {
-            ("HTTP/1.1 200 OK\r\n\r\n", "website/index.html")
-        } else {
-            ("HTTP/1.1 404 NOT FOUND\r\n\r\n", "website/not_found.html")
-        };
+    let (status_line, web_page) = if buffer.starts_with(get) {
+        ("HTTP/1.1 200 OK\r\n\r\n", "website/index.html")
+    } else if buffer.starts_with(sleep) {
+        thread::sleep(Duration::from_secs(5));
+        ("HTTP/1.1 200 OK\r\n\r\n", "website/index.html")
+    } else {
+        ("HTTP/1.1 404 NOT FOUND\r\n\r\n", "website/not_found.html")
+    };
 
     let contents = fs::read_to_string(web_page).unwrap();
     let response = format!("{}{}", status_line, contents);
