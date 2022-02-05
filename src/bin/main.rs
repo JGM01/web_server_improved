@@ -31,12 +31,12 @@ fn handle_connection(mut stream: TcpStream) {
     let sleep = b"GET /sleep HTTP/1.1\r\n";
 
     let (status_line, web_page) = if buffer.starts_with(get) {
-        ("HTTP/1.1 200 OK\r\n\r\n", "website/index.html")
+        ("HTTP/1.1 200 OK\r\n\r\n", "webpages/index.html")
     } else if buffer.starts_with(sleep) {
         thread::sleep(Duration::from_secs(5));
-        ("HTTP/1.1 200 OK\r\n\r\n", "website/index.html")
+        ("HTTP/1.1 200 OK\r\n\r\n", "webpages/index.html")
     } else {
-        ("HTTP/1.1 404 NOT FOUND\r\n\r\n", "website/not_found.html")
+        ("HTTP/1.1 404 NOT FOUND\r\n\r\n", "webpages/not_found.html")
     };
 
     let contents = fs::read_to_string(web_page).unwrap();
